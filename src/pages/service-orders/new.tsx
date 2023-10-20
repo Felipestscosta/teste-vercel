@@ -13,9 +13,7 @@ export default function New() {
   const videoConstraints = {
     width: 1280,
     height: 720,
-    facingMode: {
-      exact: "enviroment"
-    },
+    facingMode: "environment",
   };
 
   const myCld = new Cloudinary({
