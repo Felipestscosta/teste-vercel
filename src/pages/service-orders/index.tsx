@@ -9,7 +9,7 @@ export default function App() {
   return (
     <>
       {/* <Header Title="Serviços" /> */}
-      <main className="container mx-auto px-4 relative mt-6">
+      <main className="flex flex-col relative bg-gray-50 px-4">
         {/* <Link
           className="flex w-fit items-center mx-auto mt-10 mb-10 font-bold text-amber-900 text-lg'"
           href="/service-orders/new"
@@ -19,7 +19,7 @@ export default function App() {
 
         <div className="flex relative w-full mt-9 mb-16">
           <input
-            className="bg-zinc-200 rounded-full px-16 py-2 w-full border-none outline-none h-14"
+            className="rounded-full px-16 py-2 w-full outline-none h-14 shadow-lg"
             type="text"
             placeholder="Nome do cliente, Nº serviço..."
           />

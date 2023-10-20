@@ -1,16 +1,47 @@
-import Header from "@/components/header";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Webcam from "react-webcam";
 import { AdvancedImage } from "@cloudinary/react";
 import { Cloudinary } from "@cloudinary/url-gen";
-import axios from "axios";
-import { CameraIcon } from "@heroicons/react/24/outline";
-import { XMarkIcon } from "@heroicons/react/20/solid";
+import { CameraIcon, PlusIcon } from "@heroicons/react/24/outline";
+import {
+  ArrowLeftIcon,
+  ArrowRightIcon,
+  CheckIcon,
+  XMarkIcon,
+} from "@heroicons/react/20/solid";
+import { SubmitHandler, useForm } from "react-hook-form";
+
+import axios, { all } from "axios";
+
+import Header from "@/components/header";
+import { InputMask } from "@react-input/mask";
+import { InputNumberFormat } from "@react-input/number-format";
+import { api } from "@/lib/axios";
+
+interface ClientProps {
+  name: string;
+  phone: string;
+}
 
 export default function New() {
+  const webcamRef = useRef(null);
   const [image, setImage] = useState("");
   const [isOpenModal, setIsOpenModal] = useState(false);
-  const webcamRef = useRef(null);
+  const [showFormClient, setShowFormClient] = useState(true);
+  const [allClients, setAllClients] = useState([]);
+  const [findedClient, setFindedClient] = useState<ClientProps[]>([]);
+
+  const { register, handleSubmit } = useForm();
+  const chooseClient: SubmitHandler<any> = async (data: ClientProps) => {
+    try {
+      await api.post("/clients", {
+        name: data.name,
+        phone: data.phone,
+      });
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   const videoConstraints = {
     width: 1280,
@@ -47,93 +78,189 @@ export default function New() {
     }
 
     setIsOpenModal(false);
+  };
 
-    // const response = await fetch(
-    //   `https://api.cloudinary.com/v1_1/daruxsllg/upload`,
-    //   {
-    //     method: "POST",
-    //     body: JSON.stringify({
-    //       file: imageSrc,
-    //       upload_preset: 'kwcppivy'
-    //     }),
-    //   }
-    // );
+  useEffect(() => {
+    // @ts-ignore
+    api.get("/clients").then((data) => setAllClients(data));
+  }, [findedClient]);
 
-    // if (response.ok) {
-    //   const data = await response.json();
-    //   console.log("URL da imagem salva:", data.secure_url);
-    // } else {
-    //   console.error("Erro ao enviar a imagem para o Cloudinary");
-    // }
+  const handleFindClient = (data: string) => {
+    // @ts-ignore
+    const clients = allClients.data;
+
+    const findedClients = clients.filter((client: ClientProps) => client.phone === data);
+
+    if (findedClients.length === 1) {
+      setFindedClient(clients.filter((client: ClientProps) => client.phone === data));
+    } else {
+      setFindedClient([]);
+    }
   };
 
   return (
     <div>
-      <Header Title="Novo serviço"/>
+      <Header Title="Novo serviço" />
+      <div className="w-full px-8 pt-32">
+        <form
+          className={showFormClient ? "flex flex-col" : "hidden"}
+          onSubmit={handleSubmit(chooseClient)}
+        >
+          <div className="flex flex-col mb-12">
+            <label htmlFor="valor" className="font-bold" tabIndex={1}>
+              Celular
+            </label>
+            <InputMask
+              className="w-full border-t-0 border-l-0 border-r-0 border-b-2 border-gray-950 px-0 py-3 mb-12"
+              mask="(__) _____-____"
+              replacement={{ _: /\d/ }}
+              tabIndex={1}
+              {...register("phone")}
+              onChange={(e) => {
+                e.target.value.length >= 15 && handleFindClient(e.target.value);
+              }}
+            />
 
-      {/* <h1 className="pt-6 pb-6 mb-16 text-2xl font-bold text-center shadow-lg">
-        Novo serviço
-      </h1> */}
+            {findedClient.length !== 0 && (
+              <div className="flex justify-between items-center mb-9 bg-amber-950 text-white p-6 rounded-2xl shadow-lg">
+                <div className="flex flex-col gap-4">
+                  <h3
+                    className="text-xl font-bold"
+                    title={findedClient[0].name}
+                  >
+                    {findedClient[0].name.length > 20
+                      ? `${findedClient[0].name.slice(0, 20)}...`
+                      : findedClient[0].name}
+                  </h3>
+                  <p className="flex items-center gap-2">
+                    {findedClient[0].phone}
+                  </p>
+                </div>
+                <div>
+                  <button className="flex items-center justify-center bg-white shadow-2xl rounded-full p-4">
+                    <CheckIcon className="h-11 text-gray-950" />
+                  </button>
+                </div>
+              </div>
+            )}
 
-      <div className="w-full px-8">
-        <form action="">
+            <label htmlFor="valor" className="text-left font-bold">
+              Nome do Cliente
+            </label>
+            <input
+              className="w-full border-t-0 border-l-0 border-r-0 border-b-2 border-gray-950 px-0 py-3"
+              type="text"
+              tabIndex={2}
+              {...register("name")}
+            />
+          </div>
+
+          <div className="flex justify-end">
+            <button
+              onClick={() => setShowFormClient(false)}
+              className="flex gap-2 justify-center font-black shadow-lg rounded-full p-4"
+              disabled={findedClient.length !== 0 ? true : false}
+            >
+              <ArrowRightIcon className="h-8" />
+            </button>
+          </div>
+        </form>
+
+        {/* Formulário do serviço */}
+        <form action="" className={showFormClient ? "hidden" : "flex flex-col"}>
           <div className="flex flex-col mb-12 justify-center items-center">
             <button
               type="button"
               onClick={() => setIsOpenModal(true)}
               className="flex relative overflow-hidden h-48 w-48 justify-center items-center bg-slate-100 mb-20 border-dashed border-2 rounded-full cursor-pointer hover:bg-slate-50"
             >
-            <AdvancedImage cldImg={img} className="object-cover rounded-3xl absolute"/>
+              <AdvancedImage
+                cldImg={img}
+                className="object-cover rounded-3xl absolute"
+              />
               <span className="text-slate-300">
-                <CameraIcon className="h-12"/>
+                <CameraIcon className="h-12" />
               </span>
             </button>
 
-            <div className="grid grid-cols-2 gap-8">
+            <div className="grid grid-cols-3 gap-8">
               <div>
-                <label htmlFor="valor" className="mb-2" tabIndex={0}>
+                <label htmlFor="valor" className="font-bold" tabIndex={0}>
                   Valor
                 </label>
-                <input
-                  className="w-full border-t-0 border-l-0 border-r-0 border-b-2 border-gray-950 px-0"
-                  type="text"
+                <InputNumberFormat
+                  className="w-full border-t-0 border-l-0 border-r-0 border-b-2 border-gray-950 px-0 py-3"
+                  locales="pt-BR"
+                  format="currency"
+                  currency="BRL"
+                  {...register("value")}
                 />
               </div>
               <div>
-                <label htmlFor="valor" className="mb-2" tabIndex={1}>
+                <label htmlFor="valor" className="font-bold" tabIndex={1}>
                   Quantidade
                 </label>
                 <input
-                  className="w-full border-t-0 border-l-0 border-r-0 border-b-2 border-gray-950  px-0"
-                  type="text"
+                  className="w-full border-t-0 border-l-0 border-r-0 border-b-2 border-gray-950 px-0 py-3"
+                  type="number"
+                  min={1}
+                  {...register("amount")}
+                />
+              </div>
+              <div>
+                <label htmlFor="valor" className="font-bold" tabIndex={2}>
+                  Entrega
+                </label>
+                <input
+                  className="w-full border-t-0 border-l-0 border-r-0 border-b-2 border-gray-950 px-0 py-3"
+                  type="date"
+                  {...register("delivery-date")}
                 />
               </div>
             </div>
           </div>
 
           <div className="flex flex-col mb-12">
-            <label htmlFor="valor" className="mb-2">
-              Cliente
-            </label>
-            <input
-              className="border-t-0 border-l-0 border-r-0 border-b-2 border-gray-950 px-0"
-              type="text"
-              tabIndex={2}
-            />
-          </div>
-
-          <div className="flex flex-col mb-12">
-            <label htmlFor="valor" className="mb-2">
+            <label htmlFor="valor" className="font-bold">
               O que vai ser feito?
             </label>
             <textarea
-              className="border-t-0 border-l-0 border-r-0 border-b-2 border-gray-950  px-0"
+              className="border-t-0 border-l-0 border-r-0 border-b-2 border-gray-950 px-0 py-3"
               tabIndex={3}
+              placeholder="Ex: Colar e costurar solado..."
+              {...register("description")}
             />
+          </div>
+
+          <div className="flex justify-between mt-9">
+            <button
+              onClick={() => setShowFormClient(true)}
+              className="flex gap-2 justify-center shadow-lg rounded-full p-4"
+              type="button"
+            >
+              <ArrowLeftIcon className="h-8" />
+            </button>
+
+            <button
+              onClick={() => setShowFormClient(true)}
+              className="flex gap-2 justify-center shadow-lg rounded-full p-4"
+              type="button"
+            >
+              <PlusIcon className="h-8" />
+            </button>
+
+            <button
+              onClick={() => setShowFormClient(true)}
+              className="flex gap-2 justify-center shadow-lg rounded-full p-4 bg-green-500 text-gray-100"
+              type="button"
+            >
+              <CheckIcon className="h-8" />
+            </button>
           </div>
         </form>
       </div>
 
+      {/* Modal da câmera */}
       <div
         className={`absolute w-full h-full top-0 left-0 bg-gray-950 ${
           isOpenModal === true ? "flex" : "hidden"
@@ -144,7 +271,7 @@ export default function New() {
           onClick={() => setIsOpenModal(false)}
           className="absolute border-none right-4 top-4"
         >
-          <XMarkIcon className="h-10 text-gray-200"/>
+          <XMarkIcon className="h-10 text-gray-200" />
         </button>
 
         <Webcam
@@ -157,7 +284,7 @@ export default function New() {
           onClick={captureImage}
           className="absolute bottom-12 border-solid bg-gray-300 border-2 p-6 rounded-full"
         >
-          <CameraIcon className="h-12"/>
+          <CameraIcon className="h-12" />
         </button>
       </div>
     </div>
