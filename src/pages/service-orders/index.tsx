@@ -2,6 +2,7 @@ import Image from "next/image";
 
 import ScanCode from "../../components/scancode";
 import ExemploTenisBranco from "../../assets/tenis-branco.jpg";
+import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 
 export default function App() {
 
@@ -18,11 +19,11 @@ export default function App() {
 
         <div className="flex relative w-full mt-9 mb-16">
           <input
-            className="bg-zinc-200 rounded-full px-7 py-2 w-full border-none outline-none h-14"
+            className="bg-zinc-200 rounded-full px-16 py-2 w-full border-none outline-none h-14"
             type="text"
             placeholder="Nome do cliente, Nº serviço..."
           />
-          Buscar
+          <MagnifyingGlassIcon className="absolute left-6 top-4 h-6 text-gray-400"/>
         </div>
 
         <div className="flex flex-col gap-10">

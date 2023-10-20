@@ -4,6 +4,8 @@ import Webcam from "react-webcam";
 import { AdvancedImage } from "@cloudinary/react";
 import { Cloudinary } from "@cloudinary/url-gen";
 import axios from "axios";
+import { CameraIcon } from "@heroicons/react/24/outline";
+import { XMarkIcon } from "@heroicons/react/20/solid";
 
 export default function New() {
   const [image, setImage] = useState("");
@@ -83,7 +85,7 @@ export default function New() {
             >
             <AdvancedImage cldImg={img} className="object-cover rounded-3xl absolute"/>
               <span className="text-slate-300">
-                (Camera)
+                <CameraIcon className="h-12"/>
               </span>
             </button>
 
@@ -93,7 +95,7 @@ export default function New() {
                   Valor
                 </label>
                 <input
-                  className="w-full border-t-0 border-l-0 border-r-0 px-0"
+                  className="w-full border-t-0 border-l-0 border-r-0 border-b-2 border-gray-950 px-0"
                   type="text"
                 />
               </div>
@@ -102,7 +104,7 @@ export default function New() {
                   Quantidade
                 </label>
                 <input
-                  className="w-full border-t-0 border-l-0 border-r-0  px-0"
+                  className="w-full border-t-0 border-l-0 border-r-0 border-b-2 border-gray-950  px-0"
                   type="text"
                 />
               </div>
@@ -114,7 +116,7 @@ export default function New() {
               Cliente
             </label>
             <input
-              className="border-t-0 border-l-0 border-r-0  px-0"
+              className="border-t-0 border-l-0 border-r-0 border-b-2 border-gray-950 px-0"
               type="text"
               tabIndex={2}
             />
@@ -125,7 +127,7 @@ export default function New() {
               O que vai ser feito?
             </label>
             <textarea
-              className="border-t-0 border-l-0 border-r-0  px-0"
+              className="border-t-0 border-l-0 border-r-0 border-b-2 border-gray-950  px-0"
               tabIndex={3}
             />
           </div>
@@ -142,7 +144,7 @@ export default function New() {
           onClick={() => setIsOpenModal(false)}
           className="absolute border-none right-4 top-4"
         >
-          Fechar
+          <XMarkIcon className="h-10 text-gray-200"/>
         </button>
 
         <Webcam
@@ -155,7 +157,7 @@ export default function New() {
           onClick={captureImage}
           className="absolute bottom-12 border-solid bg-gray-300 border-2 p-6 rounded-full"
         >
-          (Camera)
+          <CameraIcon className="h-12"/>
         </button>
       </div>
     </div>
