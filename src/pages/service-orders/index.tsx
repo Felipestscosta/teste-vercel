@@ -1,7 +1,4 @@
-import { GetServerSideProps } from "next";
-import { FormEvent, useState } from "react";
 import Image from "next/image";
-import { ListMagnifyingGlass } from "@phosphor-icons/react";
 
 import ScanCode from "../../components/scancode";
 import ExemploTenisBranco from "../../assets/tenis-branco.jpg";
@@ -25,10 +22,7 @@ export default function App() {
             type="text"
             placeholder="Nome do cliente, Nº serviço..."
           />
-          <ListMagnifyingGlass
-            className="cursor-pointer absolute right-8 top-4 text-zinc-500"
-            size={25}
-          />
+          Buscar
         </div>
 
         <div className="flex flex-col gap-10">

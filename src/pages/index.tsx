@@ -1,5 +1,4 @@
 import { GetServerSideProps } from "next";
-import { GoogleLogo } from "@phosphor-icons/react";
 import { getSession, signIn } from "next-auth/react"
 
 import Image from "next/image";
@@ -40,7 +39,7 @@ export default function Home() {
         onClick={handleSingIn}
         className="transition ease-in-out flex items-center gap-2 border border-slate-950 text-slate-950 rounded-full px-4 py-2 hover:bg-slate-950 hover:text-slate-50"
       >
-        <GoogleLogo weight="bold" /> Acesse com Google
+        Acesse com Google
       </button>
     </main>
   );

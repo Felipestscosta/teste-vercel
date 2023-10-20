@@ -3,7 +3,6 @@ import React, { useRef, useState } from "react";
 import Webcam from "react-webcam";
 import { AdvancedImage } from "@cloudinary/react";
 import { Cloudinary } from "@cloudinary/url-gen";
-import { Camera, X } from "@phosphor-icons/react";
 import axios from "axios";
 
 export default function New() {
@@ -84,7 +83,7 @@ export default function New() {
             >
             <AdvancedImage cldImg={img} className="object-cover rounded-3xl absolute"/>
               <span className="text-slate-300">
-                <Camera className="text-slate-300" size={54} />
+                (Camera)
               </span>
             </button>
 
@@ -143,7 +142,7 @@ export default function New() {
           onClick={() => setIsOpenModal(false)}
           className="absolute border-none right-4 top-4"
         >
-          <X size={25} className="text-slate-100" />
+          Fechar
         </button>
 
         <Webcam
@@ -156,7 +155,7 @@ export default function New() {
           onClick={captureImage}
           className="absolute bottom-12 border-solid bg-gray-300 border-2 p-6 rounded-full"
         >
-          <Camera size={42} className="text-gray-750" />
+          (Camera)
         </button>
       </div>
     </div>
