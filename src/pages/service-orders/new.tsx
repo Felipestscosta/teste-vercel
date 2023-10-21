@@ -30,16 +30,30 @@ export default function New() {
   const [showFormClient, setShowFormClient] = useState(true);
   const [allClients, setAllClients] = useState([]);
   const [findedClient, setFindedClient] = useState<ClientProps[]>([]);
+  const [nameField, setNameField] = useState("");
+  const [idClient, setIdClient] = useState("");
 
   const { register, handleSubmit } = useForm();
   const chooseClient: SubmitHandler<any> = async (data: ClientProps) => {
-    try {
-      await api.post("/clients", {
-        name: data.name,
-        phone: data.phone,
-      });
-    } catch (err) {
-      console.log(err);
+    console.log(findedClient);
+
+    if (findedClient.length === 0) {
+      try {
+        await api.post("/clients", {
+          name: data.name,
+          phone: data.phone,
+        });
+
+        await api.post("/order", {
+          number: 0
+        });
+
+        setShowFormClient(false);
+      } catch (err) {
+        console.log(err);
+      }
+    } else {
+      setShowFormClient(false);
     }
   };
 
@@ -80,23 +94,32 @@ export default function New() {
     setIsOpenModal(false);
   };
 
-  useEffect(() => {
-    // @ts-ignore
-    api.get("/clients").then((data) => setAllClients(data));
-  }, [findedClient]);
-
   const handleFindClient = (data: string) => {
     // @ts-ignore
     const clients = allClients.data;
 
-    const findedClients = clients.filter((client: ClientProps) => client.phone === data);
+    const findedClients = clients.filter(
+      (client: ClientProps) => client.phone === data
+    );
 
     if (findedClients.length === 1) {
-      setFindedClient(clients.filter((client: ClientProps) => client.phone === data));
+      setFindedClient(
+        clients.filter((client: ClientProps) => client.phone === data)
+      );
     } else {
       setFindedClient([]);
+      setNameField("");
     }
   };
+
+  const handleConfirmClient = () => {
+    setNameField(findedClient[0].name);
+  };
+
+  useEffect(() => {
+    // @ts-ignore
+    api.get("/clients").then((data) => setAllClients(data));
+  }, [findedClient]);
 
   return (
     <div>
@@ -119,30 +142,30 @@ export default function New() {
               onChange={(e) => {
                 e.target.value.length >= 15 && handleFindClient(e.target.value);
               }}
+              required
             />
 
-            {findedClient.length !== 0 && (
-              <div className="flex justify-between items-center mb-9 bg-amber-950 text-white p-6 rounded-2xl shadow-lg">
-                <div className="flex flex-col gap-4">
-                  <h3
-                    className="text-xl font-bold"
-                    title={findedClient[0].name}
-                  >
-                    {findedClient[0].name.length > 20
-                      ? `${findedClient[0].name.slice(0, 20)}...`
-                      : findedClient[0].name}
-                  </h3>
-                  <p className="flex items-center gap-2">
-                    {findedClient[0].phone}
-                  </p>
-                </div>
-                <div>
-                  <button className="flex items-center justify-center bg-white shadow-2xl rounded-full p-4">
-                    <CheckIcon className="h-11 text-gray-950" />
-                  </button>
-                </div>
+            <div className={`justify-between items-center mb-9 bg-amber-950 text-white p-6 rounded-2xl shadow-lg ${ findedClient.length !== 0 && nameField.length === 0 ? "flex" : "hidden"}`}>
+              <div className="flex flex-col gap-4">
+                <h3 className="text-xl font-bold" title={findedClient[0]?.name}>
+                  {findedClient[0]?.name.length > 20
+                    ? `${findedClient[0].name.slice(0, 20)}...`
+                    : findedClient[0]?.name}
+                </h3>
+                <p className="flex items-center gap-2">
+                  {findedClient[0]?.phone}
+                </p>
               </div>
-            )}
+              <div>
+                <button
+                  type="button"
+                  className="flex items-center justify-center bg-white shadow-2xl rounded-full p-4"
+                  onClick={handleConfirmClient}
+                >
+                  <CheckIcon className="h-11 text-gray-950" />
+                </button>
+              </div>
+            </div>
 
             <label htmlFor="valor" className="text-left font-bold">
               Nome do Cliente
@@ -152,14 +175,15 @@ export default function New() {
               type="text"
               tabIndex={2}
               {...register("name")}
+              defaultValue={nameField}
+              required
             />
           </div>
 
           <div className="flex justify-end">
             <button
-              onClick={() => setShowFormClient(false)}
               className="flex gap-2 justify-center font-black shadow-lg rounded-full p-4"
-              disabled={findedClient.length !== 0 ? true : false}
+              disabled={findedClient.length !== 0 && nameField.length === 0 ? true : false}
             >
               <ArrowRightIcon className="h-8" />
             </button>
@@ -262,9 +286,9 @@ export default function New() {
 
       {/* Modal da câmera */}
       <div
-        className={`absolute w-full h-full top-0 left-0 bg-gray-950 ${
+        className={`fixed w-full h-full top-0 left-0 bg-gray-950 ${
           isOpenModal === true ? "flex" : "hidden"
-        } items-center justify-center`}
+        } items-center justify-center z-20`}
       >
         <button
           type="button"

@@ -25,3 +25,30 @@ model Client {
 
   @@map("clients")
 }
+
+model Order {
+  id     String @id @default(uuid())
+  number Int
+
+  created_at DateTime  @default(now())
+  Service    Service[]
+
+  @@map("orders")
+}
+
+model Service {
+  id          String   @id @default(uuid())
+  image       String
+  value       Int
+  amount      Int
+  delivery    DateTime
+  description String
+
+  order Order @relation(fields: [orderId], references: [id])
+
+  orderId String
+
+  created_at DateTime @default(now())
+
+  @@map("services")
+}
