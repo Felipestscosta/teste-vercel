@@ -18,7 +18,8 @@ export default async function handler(req: NextApiRequest,res: NextApiResponse) 
         delivery: convertedDeliveryDate,
         description,
         image,
-        orderId: orderId
+        orderId: orderId,
+        pay: true
       },
     });
 

@@ -13,7 +13,8 @@ export default async function handler(
     const order = await prisma.order.create({
       data: {
         number: orderCount,
-        clientId: clientId.toString()
+        clientId: clientId.toString(),
+        active: true
       },
     });
 
