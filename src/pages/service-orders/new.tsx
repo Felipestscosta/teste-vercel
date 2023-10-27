@@ -18,6 +18,8 @@ import { InputMask } from "@react-input/mask";
 import { InputNumberFormat } from "@react-input/number-format";
 import { api } from "@/lib/axios";
 import Link from "next/link";
+import { ArrowPathIcon } from "@heroicons/react/24/solid";
+import { useRouter } from "next/router";
 
 interface ClientProps {
   id: string;
@@ -31,14 +33,16 @@ interface FormData {
 
   value: number;
   amount: number;
-  delivery: Date;
+  output: Date;
   description: string;
 }
 
 export default function New() {
+  const router = useRouter();
+
   const webcamRef = useRef(null);
   const [image, setImage] = useState("");
-  const [urlImage, setUrlImage] = useState("")
+  const [urlImage, setUrlImage] = useState("");
   const [isOpenModal, setIsOpenModal] = useState(false);
   const [showFormClient, setShowFormClient] = useState(true);
   const [allClients, setAllClients] = useState([]);
@@ -46,9 +50,11 @@ export default function New() {
   const [nameField, setNameField] = useState("");
   const [orderId, setOrderId] = useState();
   const [clientId, setClientId] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [withRedirect, setWithRedirect] = useState(false);
 
   const { register, handleSubmit, reset } = useForm();
-  const chooseClient: SubmitHandler<any> = async (data: FormData) => {
+  const createOrder: SubmitHandler<any> = async (data: FormData) => {
     if (findedClient.length === 0) {
       try {
         const client = await api.post("/clients", {
@@ -56,34 +62,39 @@ export default function New() {
           phone: data.phone,
         });
 
-        await api.post("/orders", { clientId: client.data.id }).then((data) => setOrderId(data.data.id));
+        await api
+          .post("/orders", { clientId: client.data.id, output: data.output })
+          .then((data) => setOrderId(data.data.id));
 
         setShowFormClient(false);
       } catch (err) {
         console.log(err);
       }
     } else {
+      await api
+        .post("/orders", { clientId: findedClient[0].id, output: data.output })
+        .then((data) => setOrderId(data.data.id));
       setShowFormClient(false);
     }
   };
 
   const saveService: SubmitHandler<any> = async (data: FormData) => {
-    await api.post("/services", {
-      value: data.value,
-      amount: data.amount,
-      delivery: data.delivery,
-      description: data.description,
-      orderId: orderId,
-      image: urlImage,
-    });
+    setIsLoading(true);
 
-    reset({
-      value: "",
-      amount: "",
-      delivery: "",
-      description: ""
-    })
-  }
+    await api
+      .post("/services", {
+        value: data.value,
+        amount: data.amount,
+        description: data.description,
+        orderId: orderId,
+        image: urlImage,
+      })
+      .then(() => setIsLoading(false));
+
+    if (withRedirect) router.push("/service-orders");
+
+    handleResetFieldsForm();
+  };
 
   const videoConstraints = {
     width: 1280,
@@ -100,6 +111,7 @@ export default function New() {
   let img = myCld.image(image);
 
   const captureImage = async () => {
+    setIsLoading(true);
     //@ts-ignore
     const imageSrc = webcamRef.current.getScreenshot();
 
@@ -115,10 +127,8 @@ export default function New() {
 
       setImage(response.data.public_id);
       setUrlImage(response.data.url);
-      console.log(response.data);
-    } catch (error) {
-      console.log(error);
-    }
+      setIsLoading(false);
+    } catch (error) {}
 
     setIsOpenModal(false);
   };
@@ -142,12 +152,22 @@ export default function New() {
   };
 
   const handleConfirmClient = async () => {
-    const clientId = findedClient[0].id;
+    setIsLoading(true);
 
     setNameField(findedClient[0].name);
     setClientId(findedClient[0].id);
-    await api.post("/orders", { clientId: clientId }).then((data) => setOrderId(data.data.id));
+
+    setIsLoading(false);
   };
+
+  function handleResetFieldsForm() {
+    reset({
+      value: "",
+      amount: "",
+      delivery: "",
+      description: "",
+    });
+  }
 
   useEffect(() => {
     // @ts-ignore
@@ -160,7 +180,7 @@ export default function New() {
       <div className="w-full px-8 pt-32 pb-10">
         <form
           className={showFormClient ? "flex flex-col" : "hidden"}
-          onSubmit={handleSubmit(chooseClient)}
+          onSubmit={handleSubmit(createOrder)}
         >
           <div className="flex flex-col mb-12">
             <label htmlFor="valor" className="font-bold" tabIndex={1}>
@@ -200,8 +220,13 @@ export default function New() {
                   type="button"
                   className="flex items-center justify-center bg-white shadow-2xl rounded-full p-4"
                   onClick={handleConfirmClient}
+                  disabled={isLoading ? true : false}
                 >
-                  <CheckIcon className="h-11 text-gray-950" />
+                  {isLoading ? (
+                    <ArrowPathIcon className="h-11 text-gray-950 animate-spin" />
+                  ) : (
+                    <CheckIcon className="h-11 text-gray-950" />
+                  )}
                 </button>
               </div>
             </div>
@@ -218,17 +243,33 @@ export default function New() {
               required
             />
           </div>
+          <div>
+            <label htmlFor="output" className="font-bold" tabIndex={2}>
+              Data de Entrega
+            </label>
+            <input
+              className="w-full border-t-0 border-l-0 border-r-0 border-b-2 border-gray-950 px-0 py-3 mb-12"
+              type="date"
+              {...register("output")}
+            />
+          </div>
 
           <div className="flex justify-end">
             <button
+              type="submit"
               className="flex gap-2 justify-center font-black shadow-lg rounded-full p-4"
               disabled={
-                findedClient.length !== 0 && nameField.length === 0
+                (findedClient.length !== 0 && nameField.length === 0) ||
+                isLoading
                   ? true
                   : false
               }
             >
-              <ArrowRightIcon className="h-8" />
+              {isLoading ? (
+                <ArrowPathIcon className="h-8 text-gray-950 animate-spin" />
+              ) : (
+                <ArrowRightIcon className="h-8" />
+              )}
             </button>
           </div>
         </form>
@@ -278,16 +319,6 @@ export default function New() {
                   {...register("amount")}
                 />
               </div>
-              <div>
-                <label htmlFor="delivery" className="font-bold" tabIndex={2}>
-                  Entrega
-                </label>
-                <input
-                  className="w-full border-t-0 border-l-0 border-r-0 border-b-2 border-gray-950 px-0 py-3"
-                  type="date"
-                  {...register("delivery")}
-                />
-              </div>
             </div>
           </div>
 
@@ -303,28 +334,30 @@ export default function New() {
             />
           </div>
 
-          <div className="flex justify-between mt-9">
-            {/* <button
-              onClick={() => setShowFormClient(true)}
-              className="flex gap-2 justify-center shadow-lg rounded-full p-4"
-              type="button"
-            >
-              <ArrowLeftIcon className="h-8" />
-            </button> */}
+          <div className="flex flex-col">
 
-            <button
-              className="flex gap-2 justify-center shadow-lg rounded-full p-4"
-            >
-              <PlusIcon className="h-8" />
-            </button>
+            <div className="flex w-full justify-end mb-6 mt-10">
+              <button
+                type="submit"
+                className="flex w-full gap-2 justify-center items-center shadow-lg rounded-full p-4 font-bold text-lg"
+                onClick={() => setWithRedirect(false)}
+              >
+                Serviço
+                <PlusIcon className="h-5" />
+              </button>
+            </div>
 
-            <Link
-              href="/"
-              className="flex gap-2 justify-center shadow-lg rounded-full p-4 bg-green-500 text-gray-100"
-              type="button"
-            >
-              <CheckIcon className="h-8" />
-            </Link>
+            <div className="flex">
+              <button
+                className="flex w-full gap-2 justify-center items-center shadow-lg rounded-full bg-green-500 p-4 font-bold text-lg"
+                type="submit"
+                onClick={() => setWithRedirect(true)}
+              >
+                Finalizar
+                <CheckIcon className="h-5" />
+              </button>
+            </div>
+
           </div>
         </form>
       </div>
@@ -352,8 +385,13 @@ export default function New() {
         <button
           onClick={captureImage}
           className="absolute bottom-12 border-solid bg-gray-300 border-2 p-6 rounded-full"
+          disabled={isLoading ? true : false}
         >
-          <CameraIcon className="h-12" />
+          {isLoading ? (
+            <ArrowPathIcon className="h-11 text-gray-950 animate-spin" />
+          ) : (
+            <CameraIcon className="h-12 text-gray-950" />
+          )}
         </button>
       </div>
     </div>
