@@ -48,22 +48,22 @@ export default function ServiceOrdersDetails({ order, services }: any) {
       <Header Title={orderFormated.client.name} />
       <div className="flex flex-col px-8 pt-28">
         <div className="grid grid-cols-2 gap-4 mb-16">
-          <div className="flex relative gap-4 items-center p-2 py-6 pl-8 shadow-2xl rounded-lg bg-white">
-            <div className="absolute bottom-20 right-16 p-3 bg-gray-800 rounded-full">
+          <div className="flex relative gap-4 items-center justify-center text-center p-2 py-6 shadow-2xl rounded-lg bg-white">
+            <div className="absolute -top-6 p-3 bg-gray-800 rounded-full">
               <CalendarIcon className="h-5 text-white" />
             </div>
-            <div className="flex flex-col items-center">
+            <div className="flex flex-col">
               <h3>
                 {format(
                   new Date(orderFormated.created_at),
-                  "dd MMM ( EEEEEE )",
+                  "dd / MMM",
                   {
                     locale: ptBR,
                   }
                 )}
               </h3>
               <h3 className="text-lg font-extrabold">
-                {format(new Date(orderFormated.output), "dd MMM ( EEEEEE )", {
+                {format(new Date(orderFormated.output), "dd / MMM", {
                   locale: ptBR,
                 })}
               </h3>
@@ -71,7 +71,7 @@ export default function ServiceOrdersDetails({ order, services }: any) {
           </div>
 
           <div className="flex relative gap-4 items-center justify-center p-2 py-6 pr-8 pl-8 shadow-2xl rounded-lg bg-white">
-            <div className="absolute bottom-20 right-16 p-3 bg-gray-800 rounded-full">
+            <div className="absolute -top-6  p-3 bg-gray-800 rounded-full">
               <BanknotesIcon className="h-5 text-white" />
             </div>
             <div className="flex flex-col items-center">
