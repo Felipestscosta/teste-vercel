@@ -47,8 +47,8 @@ export default function ServiceOrdersDetails({ order, services }: any) {
     <div className="h-full bg-gray-100 pb-16">
       <Header Title={orderFormated.client.name} />
       <div className="flex flex-col px-8 pt-28">
-        <div className="flex w-full justify-between mb-16">
-          <div className="flex relative gap-4 items-center p-6 pl-8 shadow-2xl rounded-lg bg-white">
+        <div className="grid grid-cols-2 gap-4 mb-16">
+          <div className="flex relative gap-4 items-center p-2 py-6 pl-8 shadow-2xl rounded-lg bg-white">
             <div className="absolute bottom-20 right-16 p-3 bg-gray-800 rounded-full">
               <CalendarIcon className="h-5 text-white" />
             </div>
@@ -70,13 +70,13 @@ export default function ServiceOrdersDetails({ order, services }: any) {
             </div>
           </div>
 
-          <div className="flex relative gap-4 items-center p-3 pr-8 pl-8 shadow-2xl rounded-lg bg-white">
+          <div className="flex relative gap-4 items-center justify-center p-2 py-6 pr-8 pl-8 shadow-2xl rounded-lg bg-white">
             <div className="absolute bottom-20 right-16 p-3 bg-gray-800 rounded-full">
               <BanknotesIcon className="h-5 text-white" />
             </div>
             <div className="flex flex-col items-center">
-              <h3 className="text-2xl font-extrabold">
-                {totalValueFormated.toLocaleString("pt-BR", {
+              <h3 className="text-lg font-extrabold">
+              {totalValueFormated.toLocaleString("pt-BR", {
                   style: "currency",
                   currency: "BRL",
                 })}
@@ -109,7 +109,7 @@ export default function ServiceOrdersDetails({ order, services }: any) {
                 key={index}
               >
                 <Image
-                  className="h-80"
+                  className="h-80 rounded-t-lg"
                   width={500}
                   height={500}
                   style={{ objectFit: "cover" }}

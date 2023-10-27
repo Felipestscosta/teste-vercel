@@ -8,10 +8,11 @@ export default async function handler(
 ) {
   if (req.method === "POST") {
     const { name, phone } = req.body;
+    const nameToLower = name.toLowerCase()
 
     const client = await prisma.client.create({
       data: {
-        name,
+        name: nameToLower,
         phone,
       },
     });
