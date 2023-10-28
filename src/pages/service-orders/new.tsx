@@ -53,8 +53,12 @@ export default function New() {
   const [isLoading, setIsLoading] = useState(false);
   const [withRedirect, setWithRedirect] = useState(false);
 
+  const currentDate = new Date().toISOString().split('T')[0]
+
   const { register, handleSubmit, reset } = useForm();
   const createOrder: SubmitHandler<any> = async (data: FormData) => {
+    setIsLoading(true)
+
     if (findedClient.length === 0) {
       try {
         const client = await api.post("/clients", {
@@ -64,7 +68,10 @@ export default function New() {
 
         await api
           .post("/orders", { clientId: client.data.id, output: data.output })
-          .then((data) => setOrderId(data.data.id));
+          .then((data) => {
+            setOrderId(data.data.id)
+            setIsLoading(false)
+          });
 
         setShowFormClient(false);
       } catch (err) {
@@ -251,6 +258,7 @@ export default function New() {
               className="w-full border-t-0 border-l-0 border-r-0 border-b-2 border-gray-950 px-0 py-3 mb-12"
               type="date"
               {...register("output")}
+              min={currentDate}
             />
           </div>
 

@@ -1,4 +1,5 @@
 import Header from "@/components/header";
+import ScanCode from "@/components/scancode";
 import { api } from "@/lib/axios";
 import { prisma } from "@/lib/prisma";
 import {
@@ -6,6 +7,7 @@ import {
   BanknotesIcon,
   CalendarIcon,
   CheckIcon,
+  XMarkIcon,
 } from "@heroicons/react/24/solid";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -24,6 +26,7 @@ export default function ServiceOrdersDetails({ order, services }: any) {
   const router = useRouter();
 
   const [isLoading, setIsLoading] = useState(false);
+  const [currentImageOpen, setCurrentImageOpen] = useState("");
 
   const orderFormated = JSON.parse(order);
   let totalValue = 0;
@@ -54,13 +57,9 @@ export default function ServiceOrdersDetails({ order, services }: any) {
             </div>
             <div className="flex flex-col">
               <h3>
-                {format(
-                  new Date(orderFormated.created_at),
-                  "dd / MMM",
-                  {
-                    locale: ptBR,
-                  }
-                )}
+                {format(new Date(orderFormated.created_at), "dd / MMM", {
+                  locale: ptBR,
+                })}
               </h3>
               <h3 className="text-lg font-extrabold">
                 {format(new Date(orderFormated.output), "dd / MMM", {
@@ -76,7 +75,7 @@ export default function ServiceOrdersDetails({ order, services }: any) {
             </div>
             <div className="flex flex-col items-center">
               <h3 className="text-lg font-extrabold">
-              {totalValueFormated.toLocaleString("pt-BR", {
+                {totalValueFormated.toLocaleString("pt-BR", {
                   style: "currency",
                   currency: "BRL",
                 })}
@@ -109,15 +108,16 @@ export default function ServiceOrdersDetails({ order, services }: any) {
                 key={index}
               >
                 <Image
-                  className="h-80 rounded-t-lg"
+                  className="h-80 rounded-t-lg cursor-pointer"
                   width={500}
                   height={500}
                   style={{ objectFit: "cover" }}
                   src={service.image}
                   alt=""
+                  onClick={() => setCurrentImageOpen(service.image)}
                 />
                 <div className="flex flex-col gap-4 bg-gradient-to-br bg-white p-8 rounded-b-lg">
-                  <span className="flex absolute h-12 w-12 -top-5 -right-2 justify-center items-center bg-red-700 text-white font-bold p-3 rounded-full">
+                  <span className="flex absolute h-12 w-12 -top-5 -right-2 justify-center items-center bg-red-700 text-white text-2xl font-bold p-3 rounded-full">
                     {service.amount}
                   </span>
                   <p className="text-lg text-gray-800">{service.description}</p>
@@ -133,6 +133,27 @@ export default function ServiceOrdersDetails({ order, services }: any) {
           })}
         </div>
       </div>
+
+      <div className={`${currentImageOpen !== "" ? "flex" : "hidden"} h-full items-center justify-center absolute top-0 z-20 bg-gray-950`}>
+        <button
+          type="button"
+          onClick={() => setCurrentImageOpen("")}
+          className="absolute border-none right-4 top-4"
+        >
+          <XMarkIcon className="h-10 text-gray-200" />
+        </button>
+
+        <Image
+          className="h-80"
+          width={500}
+          height={500}
+          style={{ objectFit: "cover" }}
+          src={currentImageOpen}
+          alt=""
+        />
+      </div>
+
+      <ScanCode />
     </div>
   );
 }
