@@ -134,11 +134,11 @@ export default function ServiceOrdersDetails({ order, services }: any) {
         </div>
       </div>
 
-      <div className={`${currentImageOpen !== "" ? "flex" : "hidden"} h-full items-center justify-center absolute top-0 z-20 bg-gray-950`}>
+      <div className={`${currentImageOpen !== "" ? "flex" : "hidden"} fixed h-screen items-center justify-center top-0 z-20 bg-gray-950`}>
         <button
           type="button"
           onClick={() => setCurrentImageOpen("")}
-          className="absolute border-none right-4 top-4"
+          className="fixed border-none right-4 top-4"
         >
           <XMarkIcon className="h-10 text-gray-200" />
         </button>
