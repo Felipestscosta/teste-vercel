@@ -25,10 +25,12 @@ model Client {
 }
 
 model Order {
-  id     String   @id @default(uuid())
-  number Int
-  active Boolean
-  output DateTime
+  id          String   @id @default(uuid())
+  number      Int
+  active      Boolean
+  output      DateTime
+  total       Int      @default(0)
+  enter_value Int      @default(0)
 
   client Client @relation(fields: [clientId], references: [id])
 

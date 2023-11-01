@@ -80,7 +80,7 @@ export default function App({ orders }: arrayOrdersProps) {
             filteredOrders.length === 0 ?
               <div className="flex flex-col w-full justify-center items-center text-center gap-6">
                 <CircleStackIcon className="h-32 text-gray-300"/>
-                <p className="w-60 text-lg font-medium text-gray-300">Ainda não existem serviços cadastrados. <Link className="underline" href={`/service-orders/new`}>Cadastrar</Link></p>
+                <p className="w-60 text-lg font-medium text-gray-300">Não foi encontrado nenhum serviço. <Link className="underline" href={`/service-orders/new`}>Cadastrar</Link></p>
               </div>
               :   
               filteredOrders.map((order: any, index: number) => {

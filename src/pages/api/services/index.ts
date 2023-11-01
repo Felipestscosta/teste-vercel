@@ -3,10 +3,20 @@ import type { NextApiRequest, NextApiResponse } from "next";
 
 export default async function handler(req: NextApiRequest,res: NextApiResponse) {
 
-  const { value, amount, description, orderId, image } = req.body;  
-    
-  if (req.method === "POST") {
+  if (req.method === "GET") {
+    const orderId = req.query.orderId;
 
+    const services = await prisma.service.findMany({
+      where: {
+        orderId: orderId?.toString()
+      }
+    })
+
+    return res.status(200).json(JSON.stringify(services))
+  }
+  
+  if (req.method === "POST") {
+    const { value, amount, description, orderId, image } = req.body;  
     const convertedValue = Number(value.replace(/[^0-9]/g, ''));
     const convertedAmount = Number(amount);
 

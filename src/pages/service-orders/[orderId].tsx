@@ -29,11 +29,10 @@ export default function ServiceOrdersDetails({ order, services }: any) {
   const [currentImageOpen, setCurrentImageOpen] = useState("");
 
   const orderFormated = JSON.parse(order);
-  let totalValue = 0;
-  services.map((service: serviceProp) => {
-    return (totalValue += service.value);
-  });
-  const totalValueFormated = totalValue / 100;
+
+  const totalValueFormated = orderFormated.total / 100
+  const enterValueFormated = orderFormated.enter_value / 100
+  const remainingValueFormated = (orderFormated.total - orderFormated.enter_value) / 100
 
   async function handleFinishOrder() {
     setIsLoading(true);
@@ -51,35 +50,38 @@ export default function ServiceOrdersDetails({ order, services }: any) {
       <Header Title={orderFormated.client.name} />
       <div className="flex flex-col px-8 pt-28">
         <div className="grid grid-cols-2 gap-4 mb-16">
-          <div className="flex relative gap-4 items-center justify-center text-center p-2 py-6 shadow-2xl rounded-lg bg-white">
+          <div className="flex relative gap-4 items-center justify-center text-center p-2 py-6 pt-9 shadow-2xl rounded-lg bg-white">
             <div className="absolute -top-6 p-3 bg-gray-800 rounded-full">
               <CalendarIcon className="h-5 text-white" />
             </div>
-            <div className="flex flex-col">
+            <div className="flex flex-col gap-3">
               <h3>
-                {format(new Date(orderFormated.created_at), "dd / MMM", {
+                {format(new Date(orderFormated.created_at), "dd 'de' MMM", {
                   locale: ptBR,
                 })}
               </h3>
               <h3 className="text-lg font-extrabold">
-                {format(new Date(orderFormated.output), "dd / MMM", {
+                {format(new Date(orderFormated.output), "dd 'de' MMM", {
                   locale: ptBR,
                 })}
               </h3>
             </div>
           </div>
 
-          <div className="flex relative gap-4 items-center justify-center p-2 py-6 pr-8 pl-8 shadow-2xl rounded-lg bg-white">
+          <div className="flex relative gap-4 items-center justify-center p-2 py-6 pr-8 pl-8 pt-9 shadow-2xl rounded-lg bg-white">
             <div className="absolute -top-6  p-3 bg-gray-800 rounded-full">
               <BanknotesIcon className="h-5 text-white" />
             </div>
-            <div className="flex flex-col items-center">
-              <h3 className="text-lg font-extrabold">
-                {totalValueFormated.toLocaleString("pt-BR", {
-                  style: "currency",
-                  currency: "BRL",
-                })}
+            <div className="flex flex-col items-center gap-3">
+              <h3 className="font-normal text-sm">
+                <span>{totalValueFormated.toLocaleString("pt-BR", {style: "currency",currency: "BRL"})}</span> <span className="text-red-500"> - {enterValueFormated.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</span>
               </h3>
+              {remainingValueFormated === 0 ?
+              <h3 className="flex items-center justify-center gap-1 text-lg text-green-500 font-bold"><CheckIcon className="h-5"/> Pago</h3>
+              :
+              <h3 className="text-lg text-gray-800 font-bold">{remainingValueFormated.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</h3>
+               }
+              
             </div>
           </div>
         </div>
@@ -99,12 +101,12 @@ export default function ServiceOrdersDetails({ order, services }: any) {
           </button>
         </div>
 
-        <div className="flex flex-col gap-8">
+        <div className="flex sm:flex-col md:flex-row lg:flex-row  gap-8">
           {services.map((service: serviceProp, index: number) => {
             let formatedIndividualValue = service.value / 100;
             return (
               <div
-                className="flex flex-col relative text-center bg-white rounded-lg shadow-xl mb-12"
+                className="flex flex-col w-fit relative items-center justify-center text-center bg-white rounded-lg shadow-xl mb-12"
                 key={index}
               >
                 <Image
