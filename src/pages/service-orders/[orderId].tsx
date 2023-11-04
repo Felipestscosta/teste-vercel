@@ -101,7 +101,7 @@ export default function ServiceOrdersDetails({ order, services }: any) {
           </button>
         </div>
 
-        <div className="flex sm:flex-col md:flex-row lg:flex-row  gap-8">
+        <div className="flex flex-col  gap-8">
           {services.map((service: serviceProp, index: number) => {
             let formatedIndividualValue = service.value / 100;
             return (

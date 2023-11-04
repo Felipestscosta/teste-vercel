@@ -42,8 +42,9 @@ interface FormData {
 
 export default function New() {
   const router = useRouter();
-
+  const imageRef = useRef<HTMLInputElement | null>(null);
   const webcamRef = useRef(null);
+
   const [image, setImage] = useState("");
   const [urlImage, setUrlImage] = useState("");
   const [isOpenModal, setIsOpenModal] = useState(false);
@@ -58,6 +59,7 @@ export default function New() {
   const [valueEnter, setValueEnter] = useState("0")
   const [valueTotal, setValueTotal] = useState(50*100)
   const [modelValueEnterOpen, setModelValueEnterOpen] = useState(false);
+  const [showModalEmptyImage, setShowModalEmptyImage] = useState(false)
 
   const currentDate = new Date().toISOString().split("T")[0];
 
@@ -109,6 +111,12 @@ export default function New() {
 
   const saveService: SubmitHandler<any> = async (data: FormData) => {
     setIsLoading(true);
+    
+    if(urlImage === ""){
+      setShowModalEmptyImage(true)
+      setIsLoading(false);
+      return false
+    }
 
     await api
       .post("/services", {
@@ -125,7 +133,6 @@ export default function New() {
     if (withRedirect){
       setModelValueEnterOpen(true)
     } 
-
     handleResetFieldsForm();
   };
 
@@ -226,6 +233,8 @@ export default function New() {
       delivery: "",
       description: "",
     });
+
+    setImage("")
   }
 
   useEffect(() => {
@@ -437,6 +446,14 @@ export default function New() {
             </div>
           </div>
         </form>
+      </div>
+
+      {/* Modal de aviso para selecionar imagem */}
+      <div className={`${showModalEmptyImage ? "flex" : "hidden"} fixed w-full h-full justify-center items-center top-0 left-0 z-20`}>
+          <div className="flex fixed w-full h-full justify-center items-center top-0 left-0 bg-gray-950 opacity-60" onClick={() => setShowModalEmptyImage(false)}></div>
+          <div className="p-8 bg-white rounded-lg shadow-2xl z-30">
+            <h3>Ops, você esqueceu da <span>imagem!</span></h3>
+          </div>
       </div>
 
       {/* Modal da câmera */}

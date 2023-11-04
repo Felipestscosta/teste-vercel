@@ -43,22 +43,18 @@ export default function App({ orders }: arrayOrdersProps) {
     })
 
     setFilteredOrders(ordersFiltered)
-
-    console.log("Todos as ordens: ", ordersFiltered)
     setIsLoading(false)
   }
 
   return (
     <>
       {/* <Header Title="Serviços" /> */}
+      {isLoading &&
+          <div className="flex w-full h-full justify-center items-center fixed bg-amber-950 z-40 opacity-80">
+            <ArrowPathIcon className="h-10 animate-spin text-white"/>
+          </div>
+        }
       <main className="flex flex-col h-full min-h-screen relative bg-gray-50 px-4">
-        {/* <Link
-          className="flex w-fit items-center mx-auto mt-10 mb-10 font-bold text-amber-900 text-lg'"
-          href="/service-orders/new"
-        >
-          Novo Serviço
-        </Link> */}
-
         <div className="flex relative mt-9 mb-16 z-10">
           <input
             className="rounded-full px-16 py-2 w-full outline-none h-14 shadow-lg"
@@ -71,12 +67,6 @@ export default function App({ orders }: arrayOrdersProps) {
 
         <div className="flex flex-col gap-10">
           {
-            isLoading ?
-            <div className="flex flex-col w-full justify-center items-center text-center gap-6">
-              <ArrowPathIcon className="h-32 text-gray-300 animate-spin"/>
-              <p className="w-60 text-lg font-medium text-gray-300">Buscando pelo serviço...</p>
-            </div>
-            :
             filteredOrders.length === 0 ?
               <div className="flex flex-col w-full justify-center items-center text-center gap-6">
                 <CircleStackIcon className="h-32 text-gray-300"/>
@@ -97,9 +87,11 @@ export default function App({ orders }: arrayOrdersProps) {
                       key={index}
                       className="flex shadow-2xl relative items-center justify-center rounded-3xl overflow-hidden bg-gradient-to-br from-amber-900 to-black cursor-pointer"
                       onClick={() => {
+                        setIsLoading(true)
                         router.push(`/service-orders/${order.id}`);
                       }}
                     >
+
                       <Image
                         className="object-cover rounded-3xl absolute z-0 opacity-20 blur-sm"
                         alt=""
