@@ -42,7 +42,6 @@ interface FormData {
 
 export default function New() {
   const router = useRouter();
-  const imageRef = useRef<HTMLInputElement | null>(null);
   const webcamRef = useRef(null);
 
   const [image, setImage] = useState("");

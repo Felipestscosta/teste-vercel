@@ -39,6 +39,19 @@ export default async function handler(
   if (req.method === "PUT") {
     const { orderId, enterValue, total } = req.body;
 
+    const isFinishOrder = req.body.active
+
+    if(isFinishOrder !== undefined){
+      await prisma.order.update({
+        where: {
+          id: orderId
+        },
+        data: {
+          active: isFinishOrder
+        },
+      });
+    }
+
     const order = await prisma.order.update({
       where: {
         id: orderId

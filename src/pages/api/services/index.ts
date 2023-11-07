@@ -33,4 +33,16 @@ export default async function handler(req: NextApiRequest,res: NextApiResponse) 
 
     return res.status(201).json(service);
   }
+
+  if (req.method === "DELETE") {
+    const orderId = req.query.orderId;
+
+    await prisma.service.deleteMany({
+      where: {
+        orderId: orderId?.toString()
+      }
+    })
+
+    return res.status(200).json("Serviço deletado");
+  }
 }

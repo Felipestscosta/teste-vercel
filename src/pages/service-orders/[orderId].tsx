@@ -7,11 +7,14 @@ import {
   BanknotesIcon,
   CalendarIcon,
   CheckIcon,
+  PhoneArrowUpRightIcon,
+  TrashIcon,
   XMarkIcon,
 } from "@heroicons/react/24/solid";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/router";
 import { useState } from "react";
 
@@ -30,31 +33,72 @@ export default function ServiceOrdersDetails({ order, services }: any) {
 
   const orderFormated = JSON.parse(order);
 
-  const totalValueFormated = orderFormated.total / 100
-  const enterValueFormated = orderFormated.enter_value / 100
-  const remainingValueFormated = (orderFormated.total - orderFormated.enter_value) / 100
+  const totalValueFormated = orderFormated.total / 100;
+  const enterValueFormated = orderFormated.enter_value / 100;
+  const remainingValueFormated =
+    (orderFormated.total - orderFormated.enter_value) / 100;
 
   async function handleFinishOrder() {
     setIsLoading(true);
 
-    await api
-      .put("/orders", { orderId: orderFormated.id, active: false })
-      .then((data) => {
-        router.push("/");
-        setIsLoading(false);
-      });
+    try {
+      const confirm = window.confirm("Tem certeza que deseja finalizar?");
+      if (confirm) {
+        await api
+          .put("/orders", { orderId: orderFormated.id, active: false })
+          .then((data) => {
+            // router.push("/");
+            setIsLoading(false);
+          });
+      }
+    } catch (err) {
+      setIsLoading(false);
+      console.log("Erro: ", err);
+    }
   }
 
+  const handleRemoveOrder = async () => {
+    setIsLoading(true);
+
+    try {
+      const confirm = window.confirm("Tem certeza que deseja remover?");
+
+      if (confirm) {
+
+        await api.delete(`/services?orderId=${orderFormated.id}`).then(() => {
+          api.delete(`/orders?orderId=${orderFormated.id}`).then(() => {
+            setIsLoading(false);
+            router.push("/service-orders");
+          });
+        });
+        
+        setIsLoading(false);
+      } else {
+        setIsLoading(false);
+      }
+    } catch (error) {
+      setIsLoading(false);
+      console.log(error);
+    }
+  };
+
   return (
+    <>
+    {isLoading &&
+          <div className="flex w-full h-full justify-center items-center fixed bg-amber-950 z-40 opacity-80">
+            <ArrowPathIcon className="h-10 animate-spin text-white"/>
+          </div>
+        }
     <div className="h-full bg-gray-100 pb-16">
-      <Header Title={orderFormated.client.name} />
+      
+      <Header Title={`Nº do Pedido: ${orderFormated.number}`} />
       <div className="flex flex-col px-8 pt-28">
-        <div className="grid grid-cols-2 gap-4 mb-16">
-          <div className="flex relative gap-4 items-center justify-center text-center p-2 py-6 pt-9 shadow-2xl rounded-lg bg-white">
+        <div className="grid grid-cols-2 gap-4 mb-4">
+          <div className="flex relative gap-4 items-center justify-center text-center p-2 py-6 pt-9 rounded-lg border border-gray-300 bg-transparent">
             <div className="absolute -top-6 p-3 bg-gray-800 rounded-full">
               <CalendarIcon className="h-5 text-white" />
             </div>
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-y-0">
               <h3>
                 {format(new Date(orderFormated.created_at), "dd 'de' MMM", {
                   locale: ptBR,
@@ -68,37 +112,60 @@ export default function ServiceOrdersDetails({ order, services }: any) {
             </div>
           </div>
 
-          <div className="flex relative gap-4 items-center justify-center p-2 py-6 pr-8 pl-8 pt-9 shadow-2xl rounded-lg bg-white">
+          <div className="flex relative gap-4 items-center justify-center p-2 py-6 pt-9 rounded-lg bg-transparent border border-gray-300">
             <div className="absolute -top-6  p-3 bg-gray-800 rounded-full">
               <BanknotesIcon className="h-5 text-white" />
             </div>
-            <div className="flex flex-col items-center gap-3">
+            <div className="flex flex-col items-center gap-y-0">
               <h3 className="font-normal text-sm">
-                <span>{totalValueFormated.toLocaleString("pt-BR", {style: "currency",currency: "BRL"})}</span> <span className="text-red-500"> - {enterValueFormated.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</span>
+                <span>
+                  {totalValueFormated.toLocaleString("pt-BR", {
+                    style: "currency",
+                    currency: "BRL",
+                  })}
+                </span>{" "}
+                <span className="text-gray-400 line-through">
+                  {" "}
+                  -{" "}
+                  {enterValueFormated.toLocaleString("pt-BR", {
+                    style: "currency",
+                    currency: "BRL",
+                  })}
+                </span>
               </h3>
-              {remainingValueFormated === 0 ?
-              <h3 className="flex items-center justify-center gap-1 text-lg text-green-500 font-bold"><CheckIcon className="h-5"/> Pago</h3>
-              :
-              <h3 className="text-lg text-gray-800 font-bold">{remainingValueFormated.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</h3>
-               }
-              
+              {remainingValueFormated === 0 ? (
+                <h3 className="flex items-center justify-center gap-1 text-lg text-green-500 font-bold">
+                  <CheckIcon className="h-5" /> Pago
+                </h3>
+              ) : (
+                <h3 className="text-lg text-gray-800 font-bold">
+                  {remainingValueFormated.toLocaleString("pt-BR", {
+                    style: "currency",
+                    currency: "BRL",
+                  })}
+                </h3>
+              )}
             </div>
           </div>
         </div>
 
-        <div className="flex justify-center mb-12">
-          <button
-            type="button"
-            className="flex text-2xl font-extrabold hover:underline"
-            onClick={handleFinishOrder}
-            disabled={isLoading ? true : false}
-          >
-            {isLoading ? (
-              <ArrowPathIcon className="h-6 animate-spin" />
-            ) : (
-              "Finalizar entrega"
-            )}
-          </button>
+        <div className="flex w-full mb-16 bg-white shadow-lg z-10 rounded-lg text-center">
+          <div className="flex w-full items-center justify-between">
+            <div className="flex flex-col p-4 pl-8">
+              <h3 className="capitalize text-xl font-bold">
+                {orderFormated.client.name}
+              </h3>
+              <p>{orderFormated.client.phone}</p>
+            </div>
+            <div className="flex w-fit text-right">
+              <Link
+                href="tel:+553432105520"
+                className="flex gap-1 bg-green-500 text-white p-4 mr-6 rounded-full shadow-lg"
+              >
+                <PhoneArrowUpRightIcon className="h-4" />
+              </Link>
+            </div>
+          </div>
         </div>
 
         <div className="flex flex-col  gap-8">
@@ -136,7 +203,11 @@ export default function ServiceOrdersDetails({ order, services }: any) {
         </div>
       </div>
 
-      <div className={`${currentImageOpen !== "" ? "flex" : "hidden"} fixed h-screen items-center justify-center top-0 z-20 bg-gray-950`}>
+      <div
+        className={`${
+          currentImageOpen !== "" ? "flex" : "hidden"
+        } fixed h-screen items-center justify-center top-0 z-20 bg-gray-950`}
+      >
         <button
           type="button"
           onClick={() => setCurrentImageOpen("")}
@@ -155,8 +226,28 @@ export default function ServiceOrdersDetails({ order, services }: any) {
         />
       </div>
 
-      <ScanCode />
+      <div className="flex w-full fixed bottom-0 justify-between z-50">
+        <button
+          className="font-medium w-full  flex justify-center items-center gap-1 bg-green-500 text-white px-6 py-4"
+          onClick={() => {
+            handleFinishOrder();
+          }}
+        >
+          <CheckIcon className="h-4" /> Entregar
+        </button>
+        <button
+          className="font-medium w-full flex justify-center items-center gap-1 bg-red-500 text-white px-6 py-4"
+          onClick={() => {
+            handleRemoveOrder();
+          }}
+        >
+          <TrashIcon className="h-4" /> Deletar
+        </button>
+      </div>
+
+      {/* <ScanCode /> */}
     </div>
+    </>
   );
 }
 
