@@ -47,7 +47,7 @@ export default function App({ orders }: arrayOrdersProps) {
     setIsLoading(false)
   }
 
-  function handleFilterByFinish(status){
+  function handleFilterByFinish(status: boolean){
     
     if(status){
       const ordersFilteredByFinish = orders.filter( (order) => {
