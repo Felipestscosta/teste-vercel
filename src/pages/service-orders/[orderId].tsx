@@ -151,7 +151,7 @@ export default function ServiceOrdersDetails({ order, services }: any) {
 
         <div className="flex w-full mb-16 bg-white shadow-lg z-10 rounded-lg text-center">
           <div className="flex w-full items-center justify-between">
-            <div className="flex flex-col p-4 pl-8">
+            <div className="flex flex-col p-4 pl-8 text-left">
               <h3 className="capitalize text-xl font-bold">
                 {orderFormated.client.name}
               </h3>
@@ -159,7 +159,7 @@ export default function ServiceOrdersDetails({ order, services }: any) {
             </div>
             <div className="flex w-fit text-right">
               <Link
-                href="tel:+553432105520"
+                href={`tel:+${orderFormated.client.phone.replace(/[^0-9]/g, "")}`}
                 className="flex gap-1 bg-green-500 text-white p-4 mr-6 rounded-full shadow-lg"
               >
                 <PhoneArrowUpRightIcon className="h-4" />

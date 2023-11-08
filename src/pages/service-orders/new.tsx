@@ -491,7 +491,7 @@ export default function New() {
       {/* Modal valor de entrada */}
       <div className={`${modelValueEnterOpen ? "flex" : "hidden"} fixed items-center justify-center w-full h-full top-0 left-0 z-30`}>
         <div className="flex absolute top-0 bottom-0 h-full w-full bg-gray-500 opacity-80"></div>
-        <div className="flex flex-col w-full bg-white rounded-lg p-8 mx-16 z-30">
+        <div className="flex flex-col w-full bg-white rounded-lg p-8 mx-4 z-30">
           <div className="flex flex-col gap-4">
             <div  className="flex flex-col items-center justify-center text-3xl">
               <h3 className="font-bold">Total</h3>

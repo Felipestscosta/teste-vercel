@@ -23,6 +23,7 @@ export interface ordersProps{
   number: number
   nome: string
   phone: string
+  active: boolean
 }
 
 interface arrayOrdersProps{
@@ -33,17 +34,32 @@ export default function App({ orders }: arrayOrdersProps) {
   const router = useRouter();
   const [ filteredOrders, setFilteredOrders ] = useState<ordersProps[]>(orders)
   const [ isLoading, setIsLoading ] = useState(false)
+  const [ isAllOrders, setIsAllOrders ] = useState(true);
   
   function handleSearch(wordSearch: string){
     setIsLoading(true)
 
     const ordersFiltered = orders.filter( (order) => {
-      console.log("Telefone:", order.phone)
       return order.nome.includes(wordSearch.toLowerCase()) || order.phone.includes(wordSearch)
     })
 
     setFilteredOrders(ordersFiltered)
     setIsLoading(false)
+  }
+
+  function handleFilterByFinish(status){
+    
+    if(status){
+      const ordersFilteredByFinish = orders.filter( (order) => {
+        return order.active === false
+      })
+      setFilteredOrders(ordersFilteredByFinish)
+      setIsAllOrders(false)
+    }else{
+      setFilteredOrders(orders)
+      setIsAllOrders(true)
+    }
+
   }
 
   return (
@@ -55,7 +71,7 @@ export default function App({ orders }: arrayOrdersProps) {
           </div>
         }
       <main className="flex flex-col h-full min-h-screen relative bg-gray-50 px-4">
-        <div className="flex relative mt-9 mb-16 z-10">
+        <div className="flex relative mt-9 mb-2 z-10">
           <input
             className="rounded-full px-16 py-2 w-full outline-none h-14 shadow-lg"
             type="text"
@@ -63,6 +79,12 @@ export default function App({ orders }: arrayOrdersProps) {
             onChange={(e) => { handleSearch(e.target.value)}}
           />
           <MagnifyingGlassIcon className="absolute left-6 top-4 h-6 text-gray-400" />
+        </div>
+
+        <div className="flex w-full gap-4 my-8 items-center justify-center">
+          <button className={`${isAllOrders ? "text-gray-950 font-bold underline" : "text-gray-500"}`} onClick={() => { handleFilterByFinish(false) }}>Todos</button>
+          <span className="text-gray-300">|</span>
+          <button className={`${isAllOrders ? "text-gray-500" : "text-gray-950 font-bold underline"}`} onClick={() => { handleFilterByFinish(true) }}>Entregues</button>
         </div>
 
         <div className="flex flex-col gap-10">
@@ -82,44 +104,50 @@ export default function App({ orders }: arrayOrdersProps) {
 
                   let formatedValue = totalValue / 100;
 
+                  console.log("order: ", order)
                   return (
-                    <div
-                      key={index}
-                      className="flex shadow-2xl relative items-center justify-center rounded-3xl overflow-hidden bg-gradient-to-br from-amber-900 to-black cursor-pointer"
-                      onClick={() => {
-                        setIsLoading(true)
-                        router.push(`/service-orders/${order.id}`);
-                      }}
-                    >
+                    
+                     
+                      <div
+                        key={index}
+                        className={`flex shadow-2xl relative items-center justify-center rounded-3xl overflow-hidden bg-gradient-to-br ${order.active ? "from-amber-900" : "from-gray-400 line-through text-gray-400 opacity-70"} to-black cursor-pointer`}
+                        onClick={() => {
+                          setIsLoading(true)
+                          router.push(`/service-orders/${order.id}`);
+                        }}
+                      >
 
-                      <Image
-                        className="object-cover rounded-3xl absolute z-0 opacity-20 blur-sm"
-                        alt=""
-                        src={order.featureImage}
-                        width={450}
-                        height={170}
-                      />
+                        <Image
+                          className="object-cover rounded-3xl absolute z-0 opacity-20 blur-sm"
+                          alt=""
+                          src={order.featureImage}
+                          width={450}
+                          height={170}
+                        />
 
-                      <div className="relative p-10 mx-auto w-full z-2">
-                        <h3 className="text-zinc-200 font-bold text-3xl capitalize mb-6">
-                          {order.nome}
-                        </h3>
-                        <hr className="mb-4 opacity-30 border-zinc-300" />
-                        <div className="grid grid-cols-2">
-                          <p className="text-zinc-200 text-2xl">
-                            {format(new Date(order.data), "dd MMM", { locale: ptBR })}
-                          </p>
-                          <p className="text-zinc-200 text-2xl text-right">
-                            {formatedValue.toLocaleString("pt-BR", {
-                              style: "currency",
-                              currency: "BRL",
-                            })}
-                          </p>
+                        <div className="relative p-10 mx-auto w-full z-2">
+                          <h3 className="text-zinc-200 font-bold text-3xl capitalize mb-6">
+                            {order.nome}
+                          </h3>
+                          <hr className="mb-4 opacity-30 border-zinc-300" />
+                          <div className="grid grid-cols-2">
+                            <p className="text-zinc-200 text-2xl">
+                              {format(new Date(order.data), "dd MMM", { locale: ptBR })}
+                            </p>
+                            <p className="text-zinc-200 text-2xl text-right">
+                              {formatedValue.toLocaleString("pt-BR", {
+                                style: "currency",
+                                currency: "BRL",
+                              })}
+                            </p>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  );
-                })
+                  
+                    
+                  )
+
+              })
               
             }
         </div>
@@ -131,7 +159,7 @@ export default function App({ orders }: arrayOrdersProps) {
 
 export const getServerSideProps: GetServerSideProps = async () => {
   const orders = await prisma.order.findMany({
-    where: { active: true },
+    // where: { active: true },
     include: {
       client: true,
       service: true,
@@ -143,6 +171,7 @@ export const getServerSideProps: GetServerSideProps = async () => {
       id: order.id,
       nome: order.client.name,
       data: order.output.toISOString(),
+      active: order.active,
       featureImage: order.service[0]?.image ?? "",
       services: JSON.stringify(order.service),
       number: order.number,
