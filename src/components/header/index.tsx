@@ -9,7 +9,7 @@ interface TitleProps {
 
 export default function Header(props: TitleProps) {
   return (
-    <header className="flex fixed w-full justify-between items-center px-6 py-4 mb-16 shadow-lg bg-white z-10 capitalize">
+    <header className="flex fixed w-full justify-between items-center px-6 py-4 mb-16 shadow-lg bg-white z-40 capitalize">
       <Link href='/'>
         <HomeIcon className="h-6 text-slate-950"/>
       </Link>

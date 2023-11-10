@@ -104,6 +104,9 @@ export default function ServiceOrdersDetails({ order, services }: any) {
                   locale: ptBR,
                 })}
               </h3>
+              <span>
+                <hr className="my-1"/>
+              </span>
               <h3 className="text-lg font-extrabold">
                 {format(new Date(orderFormated.output), "dd 'de' MMM", {
                   locale: ptBR,
@@ -116,23 +119,21 @@ export default function ServiceOrdersDetails({ order, services }: any) {
             <div className="absolute -top-6  p-3 bg-gray-800 rounded-full">
               <BanknotesIcon className="h-5 text-white" />
             </div>
-            <div className="flex flex-col items-center gap-y-0">
-              <h3 className="font-normal text-sm">
-                <span>
+            <div className="flex flex-col text-left gap-y-0">
+                <h3>
                   {totalValueFormated.toLocaleString("pt-BR", {
                     style: "currency",
                     currency: "BRL",
                   })}
-                </span>{" "}
-                <span className="text-gray-400 line-through">
+                </h3>{" "}
+                <h3 className="text-gray-400 line-through">
                   {" "}
                   -{" "}
                   {enterValueFormated.toLocaleString("pt-BR", {
                     style: "currency",
                     currency: "BRL",
                   })}
-                </span>
-              </h3>
+                </h3>
               {remainingValueFormated === 0 ? (
                 <h3 className="flex items-center justify-center gap-1 text-lg text-green-500 font-bold">
                   <CheckIcon className="h-5" /> Pago
@@ -203,10 +204,11 @@ export default function ServiceOrdersDetails({ order, services }: any) {
         </div>
       </div>
 
+      {/* Modal de Zoom da imagem */}
       <div
         className={`${
           currentImageOpen !== "" ? "flex" : "hidden"
-        } fixed h-screen items-center justify-center top-0 z-20 bg-gray-950`}
+        } fixed w-screen h-screen items-center justify-center top-0 z-50 bg-gray-950`}
       >
         <button
           type="button"
@@ -217,21 +219,22 @@ export default function ServiceOrdersDetails({ order, services }: any) {
         </button>
 
         <Image
-          className="h-80"
+          className="h-auto"
           width={500}
           height={500}
-          style={{ objectFit: "cover" }}
+          style={{ objectFit: "contain" }}
           src={currentImageOpen}
           alt=""
         />
       </div>
 
-      <div className="flex w-full fixed bottom-0 justify-between z-50">
+      <div className="flex w-full fixed bottom-0 justify-between z-40">
         <button
           className="font-medium w-full  flex justify-center items-center gap-1 bg-green-500 text-white px-6 py-4"
           onClick={() => {
             handleFinishOrder();
           }}
+          disabled={orderFormated.active ? false : true}
         >
           <CheckIcon className="h-4" /> Entregar
         </button>

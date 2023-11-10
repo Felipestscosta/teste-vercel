@@ -71,23 +71,29 @@ export default function App({ orders }: arrayOrdersProps) {
           </div>
         }
       <main className="flex flex-col h-full min-h-screen relative bg-gray-50 px-4">
-        <div className="flex relative mt-9 mb-2 z-10">
-          <input
-            className="rounded-full px-16 py-2 w-full outline-none h-14 shadow-lg"
-            type="text"
-            placeholder="Nome do cliente, Nº serviço..."
-            onChange={(e) => { handleSearch(e.target.value)}}
-          />
-          <MagnifyingGlassIcon className="absolute left-6 top-4 h-6 text-gray-400" />
+        
+        <div className="flex flex-col fixed w-screen justify-center items-center p-8 pb-2 pt-4 left-0 z-10 bg-gray-50 shadow-lg rounded-b-2xl">
+          <div className="flex relative w-full">
+            <input
+              className="rounded-full w-full px-16 py-2 outline-none h-14 shadow-lg"
+              type="text"
+              placeholder="Nome do cliente, Nº serviço..."
+              onChange={(e) => { handleSearch(e.target.value)}}
+            />
+            <MagnifyingGlassIcon className="absolute left-6 top-4 h-6 text-gray-400" />
+          </div>
+
+          <div className="flex gap-4 my-3 items-center justify-center">
+            <button className={`${isAllOrders ? "text-gray-950 font-bold underline" : "text-gray-500"}`} onClick={() => { handleFilterByFinish(false) }}>Todos</button>
+            <span className="text-gray-300">|</span>
+            <button className={`${isAllOrders ? "text-gray-500" : "text-gray-950 font-bold underline"}`} onClick={() => { handleFilterByFinish(true) }}>Entregues</button>
+          </div>
+
         </div>
 
-        <div className="flex w-full gap-4 my-8 items-center justify-center">
-          <button className={`${isAllOrders ? "text-gray-950 font-bold underline" : "text-gray-500"}`} onClick={() => { handleFilterByFinish(false) }}>Todos</button>
-          <span className="text-gray-300">|</span>
-          <button className={`${isAllOrders ? "text-gray-500" : "text-gray-950 font-bold underline"}`} onClick={() => { handleFilterByFinish(true) }}>Entregues</button>
-        </div>
+        
 
-        <div className="flex flex-col gap-10">
+        <div className="flex flex-col gap-10 pt-48">
           {
             filteredOrders.length === 0 ?
               <div className="flex flex-col w-full justify-center items-center text-center gap-6">

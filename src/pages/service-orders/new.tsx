@@ -27,7 +27,7 @@ interface ClientProps {
 }
 
 interface serviceProps {
-  value: number
+  value: number;
 }
 
 interface FormData {
@@ -55,10 +55,10 @@ export default function New() {
   const [clientId, setClientId] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [withRedirect, setWithRedirect] = useState(false);
-  const [valueEnter, setValueEnter] = useState("0")
-  const [valueTotal, setValueTotal] = useState(50*100)
+  const [valueEnter, setValueEnter] = useState("0");
+  const [valueTotal, setValueTotal] = useState(50 * 100);
   const [modelValueEnterOpen, setModelValueEnterOpen] = useState(false);
-  const [showModalEmptyImage, setShowModalEmptyImage] = useState(false)
+  const [showModalEmptyImage, setShowModalEmptyImage] = useState(false);
 
   const currentDate = new Date().toISOString().split("T")[0];
 
@@ -88,7 +88,7 @@ export default function New() {
       await api
         .post("/orders", { clientId: findedClient[0].id, output: data.output })
         .then((data) => {
-          setOrderId(data.data.id)
+          setOrderId(data.data.id);
           setIsLoading(false);
         });
       setShowFormClient(false);
@@ -96,25 +96,25 @@ export default function New() {
   };
 
   const handleCancelOrder = async () => {
-    setIsLoading(true)
+    setIsLoading(true);
 
     try {
       await api.delete(`/orders?orderId=${orderId}`).then(() => {
-        setIsLoading(false)
-        router.push("/service-orders")
-      })
+        setIsLoading(false);
+        router.push("/service-orders");
+      });
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
-  }
+  };
 
   const saveService: SubmitHandler<any> = async (data: FormData) => {
     setIsLoading(true);
-    
-    if(urlImage === ""){
-      setShowModalEmptyImage(true)
+
+    if (urlImage === "") {
+      setShowModalEmptyImage(true);
       setIsLoading(false);
-      return false
+      return false;
     }
 
     await api
@@ -127,38 +127,43 @@ export default function New() {
       })
       .then(() => setIsLoading(false));
 
-    updateValues()
+    updateValues();
 
-    if (withRedirect){
-      setModelValueEnterOpen(true)
-    } 
+    if (withRedirect) {
+      setModelValueEnterOpen(true);
+    }
     handleResetFieldsForm();
   };
 
   const confirmEnterValue = async () => {
-    setIsLoading(true)
+    setIsLoading(true);
 
-    const formatedEnterValue = Number(valueEnter.replace(/[^0-9]/g, ""))
-    const formatedTotalValue = valueTotal * 100
+    const formatedEnterValue = Number(valueEnter.replace(/[^0-9]/g, ""));
+    const formatedTotalValue = valueTotal * 100;
 
-    await api.put("/orders", { orderId: orderId, enterValue: formatedEnterValue, total: formatedTotalValue }).then( () => {
-      setIsLoading(true)
-      router.push("/service-orders");
-    })
+    await api
+      .put("/orders", {
+        orderId: orderId,
+        enterValue: formatedEnterValue,
+        total: formatedTotalValue,
+      })
+      .then(() => {
+        setIsLoading(true);
+        router.push(`/service-orders/${orderId}`);
+      });
+  };
 
-  }
-
-  async function updateValues(){
+  async function updateValues() {
     await api.get(`/services?orderId=${orderId}`).then((data) => {
-      const services = JSON.parse(data.data)
+      const services = JSON.parse(data.data);
       let total = 0;
 
       services.map((service: serviceProps) => {
-        total += service.value
-      })
+        total += service.value;
+      });
 
-      setValueTotal(total / 100)
-    })
+      setValueTotal(total / 100);
+    });
   }
 
   const videoConstraints = {
@@ -233,7 +238,7 @@ export default function New() {
       description: "",
     });
 
-    setImage("")
+    setImage("");
   }
 
   useEffect(() => {
@@ -244,9 +249,9 @@ export default function New() {
   return (
     <div>
       <Header Title="Novo serviço" />
-      <div className="w-full px-8 pt-32 pb-10">
+      <div className="w-full pt-32 pb-10">
         <form
-          className={showFormClient ? "flex flex-col" : "hidden"}
+          className={showFormClient ? "flex flex-col px-8" : "hidden"}
           onSubmit={handleSubmit(createOrder)}
         >
           <div className="flex flex-col mb-12">
@@ -348,111 +353,127 @@ export default function New() {
           className={showFormClient ? "hidden" : "flex flex-col"}
           onSubmit={handleSubmit(saveService)}
         >
-          <div className="flex flex-col mb-12 justify-center items-center">
-            <button
-              type="button"
-              onClick={() => setIsOpenModal(true)}
-              className="flex relative overflow-hidden h-48 w-48 justify-center items-center bg-slate-100 mb-20 border-dashed border-2 rounded-full cursor-pointer hover:bg-slate-50"
-            >
-              <AdvancedImage
-                cldImg={img}
-                className="object-cover rounded-3xl absolute"
+          <div className="px-8">
+            <div className="flex flex-col mb-12 justify-center items-center">
+              <button
+                type="button"
+                onClick={() => setIsOpenModal(true)}
+                className="flex relative overflow-hidden h-48 w-48 justify-center items-center bg-slate-100 mb-20 border-dashed border-2 rounded-full cursor-pointer hover:bg-slate-50"
+              >
+                <AdvancedImage
+                  cldImg={img}
+                  className="object-cover rounded-3xl absolute"
+                />
+                <span className="text-slate-300">
+                  <CameraIcon className="h-12" />
+                </span>
+              </button>
+
+              <div className="grid grid-cols-2 gap-8">
+                <div>
+                  <label htmlFor="valor" className="font-bold">
+                    Valor
+                  </label>
+                  <InputNumberFormat
+                    className="w-full border-t-0 border-l-0 border-r-0 border-b-2 border-gray-950 px-0 py-3"
+                    locales="pt-BR"
+                    format="currency"
+                    currency="BRL"
+                    {...register("value")}
+                    required
+                    tabIndex={1}
+                  />
+                </div>
+                <div>
+                  <label htmlFor="valor" className="font-bold">
+                    Quantidade
+                  </label>
+                  <input
+                    className="w-full border-t-0 border-l-0 border-r-0 border-b-2 border-gray-950 px-0 py-3"
+                    type="number"
+                    min={1}
+                    {...register("amount")}
+                    required
+                    tabIndex={2}
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="flex flex-col mb-2">
+              <label htmlFor="description" className="font-bold">
+                O que vai ser feito?
+              </label>
+              <textarea
+                className="border-t-0 border-l-0 border-r-0 border-b-2 border-gray-950 px-0 py-3"
+                tabIndex={3}
+                placeholder="Ex: Colar e costurar solado..."
+                {...register("description")}
+                required
               />
-              <span className="text-slate-300">
-                <CameraIcon className="h-12" />
-              </span>
+            </div>
+
+            <div className="flex flex-col">
+              <div className="flex w-full justify-end mb-16 mt-10">
+                <button
+                  type="submit"
+                  className="flex w-full gap-2 justify-center items-center shadow-lg rounded-full p-4 font-bold text-lg"
+                  onClick={() => setWithRedirect(false)}
+                >
+                  Serviço
+                  <PlusIcon className="h-5" />
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex w-full fixed left-0 bottom-0">
+            <button
+              className="flex w-full gap-2 justify-center items-center shadow-lg bg-red-500 text-white p-4 font-bold text-lg"
+              type="button"
+              onClick={() => handleCancelOrder()}
+              disabled={isLoading ? true : false}
+            >
+              Cancelar
+              {isLoading ? (
+                <ArrowPathIcon className="h-8 text-white-950 animate-spin" />
+              ) : (
+                <XMarkIcon className="h-6" />
+              )}
             </button>
 
-            <div className="grid grid-cols-3 gap-8">
-              <div>
-                <label htmlFor="valor" className="font-bold">
-                  Valor
-                </label>
-                <InputNumberFormat
-                  className="w-full border-t-0 border-l-0 border-r-0 border-b-2 border-gray-950 px-0 py-3"
-                  locales="pt-BR"
-                  format="currency"
-                  currency="BRL"
-                  {...register("value")}
-                  required
-                  tabIndex={1}
-                />
-              </div>
-              <div>
-                <label htmlFor="valor" className="font-bold">
-                  Quantidade
-                </label>
-                <input
-                  className="w-full border-t-0 border-l-0 border-r-0 border-b-2 border-gray-950 px-0 py-3"
-                  type="number"
-                  min={1}
-                  {...register("amount")}
-                  required
-                  tabIndex={2}
-                />
-              </div>
-            </div>
-          </div>
-
-          <div className="flex flex-col mb-2">
-            <label htmlFor="description" className="font-bold">
-              O que vai ser feito?
-            </label>
-            <textarea
-              className="border-t-0 border-l-0 border-r-0 border-b-2 border-gray-950 px-0 py-3"
-              tabIndex={3}
-              placeholder="Ex: Colar e costurar solado..."
-              {...register("description")}
-              required
-            />
-          </div>
-
-          <div className="flex flex-col">
-            <div className="flex w-full justify-end mb-16 mt-10">
-              <button
-                type="submit"
-                className="flex w-full gap-2 justify-center items-center shadow-lg rounded-full p-4 font-bold text-lg"
-                onClick={() => setWithRedirect(false)}
-              >
-                Serviço
-                <PlusIcon className="h-5" />
-              </button>
-            </div>
-
-            <div className="flex gap-8">
-              <button
-                className="flex w-full gap-2 justify-center items-center shadow-lg rounded-full bg-red-500 text-white p-4 font-bold text-lg"
-                type="button"
-                onClick={() => handleCancelOrder()}
-                disabled={isLoading ? true : false}
-              >
-                Cancelar
-                {isLoading ?
-                  <ArrowPathIcon className="h-8 text-white-950 animate-spin" />
-                :
-                  <XMarkIcon className="h-6" />
-                }
-              </button>
-
-              <button
-                className="flex w-full gap-2 justify-center items-center shadow-lg rounded-full bg-green-500 text-white p-4 font-bold text-lg"
-                type="submit"
-                onClick={() => setWithRedirect(true)}
-              >
-                Finalizar
+            <button
+              className="flex w-full gap-2 justify-center items-center shadow-lg bg-green-500 text-white p-4 font-bold text-lg"
+              type="submit"
+              onClick={() => setWithRedirect(true)}
+              disabled={isLoading ? true : false}
+            >
+              Finalizar
+              {isLoading ? (
+                <ArrowPathIcon className="h-8 text-white-950 animate-spin" />
+              ) : (
                 <CheckIcon className="h-6" />
-              </button>
-            </div>
+              )}
+            </button>
           </div>
         </form>
       </div>
 
       {/* Modal de aviso para selecionar imagem */}
-      <div className={`${showModalEmptyImage ? "flex" : "hidden"} fixed w-full h-full justify-center items-center top-0 left-0 z-20`}>
-          <div className="flex fixed w-full h-full justify-center items-center top-0 left-0 bg-gray-950 opacity-60" onClick={() => setShowModalEmptyImage(false)}></div>
-          <div className="p-8 bg-white rounded-lg shadow-2xl z-30">
-            <h3>Ops, você esqueceu da <span>imagem!</span></h3>
-          </div>
+      <div
+        className={`${
+          showModalEmptyImage ? "flex" : "hidden"
+        } fixed w-full h-full justify-center items-center top-0 left-0 z-20`}
+      >
+        <div
+          className="flex fixed w-full h-full justify-center items-center top-0 left-0 bg-gray-950 opacity-60"
+          onClick={() => setShowModalEmptyImage(false)}
+        ></div>
+        <div className="p-8 bg-white rounded-lg shadow-2xl z-30">
+          <h3>
+            Ops, você esqueceu da <span>imagem!</span>
+          </h3>
+        </div>
       </div>
 
       {/* Modal da câmera */}
@@ -489,28 +510,42 @@ export default function New() {
       </div>
 
       {/* Modal valor de entrada */}
-      <div className={`${modelValueEnterOpen ? "flex" : "hidden"} fixed items-center justify-center w-full h-full top-0 left-0 z-30`}>
+      <div
+        className={`${
+          modelValueEnterOpen ? "flex" : "hidden"
+        } fixed items-center justify-center w-full h-full top-0 left-0 z-30`}
+      >
         <div className="flex absolute top-0 bottom-0 h-full w-full bg-gray-500 opacity-80"></div>
         <div className="flex flex-col w-full bg-white rounded-lg p-8 mx-4 z-30">
           <div className="flex flex-col gap-4">
-            <div  className="flex flex-col items-center justify-center text-3xl">
+            <div className="flex flex-col items-center justify-center text-3xl">
               <h3 className="font-bold">Total</h3>
-              <p>{Number(valueTotal).toLocaleString("pt-BR", { style: "currency", currency: "BRL"})}</p>
+              <p>
+                {Number(valueTotal).toLocaleString("pt-BR", {
+                  style: "currency",
+                  currency: "BRL",
+                })}
+              </p>
             </div>
             <div className="flex justify-between">
-            <div className="text-gray-400">
-              <h3>Entrada</h3>
-              <p>{valueEnter}</p>
-            </div>
-            <div className="text-red-500">
-              <h3>Restante</h3>
-              <p>{`${(valueTotal - (Number(valueEnter.replace(/[^0-9]/g, '')) / 100)).toLocaleString("pt-BT", { style: "currency", currency: "BRL"  })}`}</p>
-            </div>
+              <div className="text-gray-400">
+                <h3>Entrada</h3>
+                <p>{valueEnter}</p>
+              </div>
+              <div className="text-red-500">
+                <h3>Restante</h3>
+                <p>{`${(
+                  valueTotal -
+                  Number(valueEnter.replace(/[^0-9]/g, "")) / 100
+                ).toLocaleString("pt-BT", {
+                  style: "currency",
+                  currency: "BRL",
+                })}`}</p>
+              </div>
             </div>
           </div>
-          
 
-          <hr className="my-6"/>
+          <hr className="my-6" />
 
           <div className="flex flex-col mx-auto w-36">
             <label htmlFor="initial-value">Valor de entrada?</label>
@@ -522,22 +557,31 @@ export default function New() {
               {...register("valueEnter")}
               required
               onChange={(e) => {
-                setValueEnter(e.target.value)
-              }} 
+                setValueEnter(e.target.value);
+              }}
               value={valueEnter}
             />
           </div>
           <button
-                className="flex w-full gap-2 justify-center items-center shadow-lg rounded-full bg-green-500 text-white p-4 mt-12 font-bold text-lg"
-                type="button"
-                onClick={() => confirmEnterValue()}
-                disabled={(valueTotal - (Number(valueEnter.replace(/[^0-9]/g, '')) / 100)) < 0 ? true : false}
-              >
-                confirmar
+            className="flex w-full gap-2 justify-center items-center shadow-lg rounded-full bg-green-500 text-white p-4 mt-12 font-bold text-lg"
+            type="button"
+            onClick={() => confirmEnterValue()}
+            disabled={
+              (valueTotal - Number(valueEnter.replace(/[^0-9]/g, "")) / 100 < 0)
+                ? true
+                : false
+                ||
+                isLoading ? true : false
+            }
+          >
+            confirmar
+            {isLoading ? (
+                <ArrowPathIcon className="h-8 text-white-950 animate-spin" />
+              ) : (
                 <CheckIcon className="h-6" />
-              </button>
+              )}
+          </button>
         </div>
-
       </div>
     </div>
   );
