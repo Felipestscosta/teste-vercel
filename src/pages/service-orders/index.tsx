@@ -10,7 +10,7 @@ import ScanCode from "../../components/scancode";
 import { useRouter } from "next/router";
 import { ArrowPathIcon, CircleStackIcon } from "@heroicons/react/24/solid";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 export interface serviceProps {
   created_at: string;
@@ -24,6 +24,9 @@ export interface ordersProps{
   nome: string
   phone: string
   active: boolean
+  date: string
+  data: string
+  total: number
 }
 
 interface arrayOrdersProps{
@@ -35,12 +38,19 @@ export default function App({ orders }: arrayOrdersProps) {
   const [ filteredOrders, setFilteredOrders ] = useState<ordersProps[]>(orders)
   const [ isLoading, setIsLoading ] = useState(false)
   const [ isAllOrders, setIsAllOrders ] = useState(true);
+  const [ isTodayFilterOrderActive, setIsTodayFilterOrderActive ] = useState(false);
+  const [ isFinishedOutputActive, setIsFinishedOutputActive ] = useState(false);
   
-  function handleSearch(wordSearch: string){
+  function handleSearch(wordSearch: any){
     setIsLoading(true)
 
     const ordersFiltered = orders.filter( (order) => {
-      return order.nome.includes(wordSearch.toLowerCase()) || order.phone.includes(wordSearch)
+      const totalPrice = order.total / 100;
+      const formatedTotalPrice = totalPrice.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+      
+      return order.nome.includes(wordSearch.toLowerCase()) 
+             || order.phone.includes(wordSearch)
+             || formatedTotalPrice === Number(wordSearch.replace(',', '') / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })
     })
 
     setFilteredOrders(ordersFiltered)
@@ -55,16 +65,41 @@ export default function App({ orders }: arrayOrdersProps) {
       })
       setFilteredOrders(ordersFilteredByFinish)
       setIsAllOrders(false)
+      setIsTodayFilterOrderActive(false)
+      setIsFinishedOutputActive(true)
     }else{
       setFilteredOrders(orders)
       setIsAllOrders(true)
+      setIsTodayFilterOrderActive(false)
+      setIsFinishedOutputActive(false)
     }
-
   }
+
+  function handleByToday(){
+    const currentDate = new Date();
+    const formatedCurrentDate = format(currentDate, "yyyy-MM-dd");
+
+    const currentDateOrders = orders.filter( (order: ordersProps) => {
+      const orderDate = new Date(order.data);
+      const formatedOrderDate = format(orderDate, "yyyy-MM-dd");
+      return formatedOrderDate === formatedCurrentDate;
+    })
+
+    if(currentDateOrders.length !== 0){
+      setFilteredOrders(currentDateOrders)
+      setIsAllOrders(false)
+      setIsFinishedOutputActive(false)
+      setIsTodayFilterOrderActive(true)
+    }else{
+      setFilteredOrders(orders)
+      setIsAllOrders(true)
+      setIsFinishedOutputActive(false)
+      setIsTodayFilterOrderActive(false)
+    }
+  } 
 
   return (
     <>
-      {/* <Header Title="Serviços" /> */}
       {isLoading &&
           <div className="flex w-full h-full justify-center items-center fixed bg-amber-950 z-40 opacity-80">
             <ArrowPathIcon className="h-10 animate-spin text-white"/>
@@ -84,14 +119,20 @@ export default function App({ orders }: arrayOrdersProps) {
           </div>
 
           <div className="flex gap-4 my-3 items-center justify-center">
-            <button className={`${isAllOrders ? "text-gray-950 font-bold underline" : "text-gray-500"}`} onClick={() => { handleFilterByFinish(false) }}>Todos</button>
+            <button 
+              className={`${isAllOrders ? "text-gray-950 font-bold underline" : "text-gray-500"}`} 
+              onClick={() => { handleFilterByFinish(false) }}>Todos</button>
             <span className="text-gray-300">|</span>
-            <button className={`${isAllOrders ? "text-gray-500" : "text-gray-950 font-bold underline"}`} onClick={() => { handleFilterByFinish(true) }}>Entregues</button>
+            <button 
+              className={`${isTodayFilterOrderActive ? "text-gray-950 font-bold underline" : "text-gray-500"}`} 
+              onClick={() => { handleByToday() }}>Hoje</button>
+            <span className="text-gray-300">|</span>
+            <button 
+              className={`${isFinishedOutputActive ? "text-gray-950 font-bold underline" : "text-gray-500"}`} 
+              onClick={() => { handleFilterByFinish(true) }}>Entregues</button>
           </div>
 
-        </div>
-
-        
+        </div>        
 
         <div className="flex flex-col gap-10 pt-48">
           {
@@ -110,10 +151,7 @@ export default function App({ orders }: arrayOrdersProps) {
 
                   let formatedValue = totalValue / 100;
 
-                  console.log("order: ", order)
-                  return (
-                    
-                     
+                  return (                     
                       <div
                         key={index}
                         className={`flex shadow-2xl relative items-center justify-center rounded-3xl overflow-hidden bg-gradient-to-br ${order.active ? "from-amber-900" : "from-gray-400 line-through text-gray-400 opacity-70"} to-black cursor-pointer`}
@@ -181,7 +219,8 @@ export const getServerSideProps: GetServerSideProps = async () => {
       featureImage: order.service[0]?.image ?? "",
       services: JSON.stringify(order.service),
       number: order.number,
-      phone: order.client.phone
+      phone: order.client.phone,
+      total: order.total
     };
   });
 
